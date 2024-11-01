@@ -3,6 +3,8 @@ import * as joi from 'joi';
 
 interface EnvVars {
   PORT: number;
+  PRODUCTS_MICROSERVICE_HOST: string;
+  PRODUCTS_MICROSERVICE_PORT: number;
   // MONGO_URI: string;
   // DATABASE_URL: string;
 }
@@ -11,7 +13,8 @@ interface EnvVars {
 const envsSchema = joi
   .object({
     PORT: joi.number().required(),
-    //El required() es para que no deje pasar la variable de entorno si no está definida
+    PRODUCTS_MICROSERVICE_HOST: joi.string().required(),
+    PRODUCTS_MICROSERVICE_PORT: joi.number().required(),
     // DATABASE_URL: joi.string().required(),
     // MONGO_URI: joi.string().required(),
   })
@@ -27,5 +30,6 @@ const envVars: EnvVars = value;
 
 export const envs = {
   port: envVars.PORT,
-  // databaseUrl: envVars.DATABASE_URL,
+  productsMicroserviceHost: envVars.PRODUCTS_MICROSERVICE_HOST,
+  productsMicroservicePort: envVars.PRODUCTS_MICROSERVICE_PORT,
 };
