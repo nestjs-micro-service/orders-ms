@@ -12,6 +12,8 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { OrderPaginationDto } from './dto/order-pagination.dto';
 import { NATS_SERVICE } from '../config/services';
 import { firstValueFrom } from 'rxjs';
+import { OrderWithProducts } from './interfaces/order-with-products';
+import { PaidOrderDto } from './dto';
 
 @Injectable()
 export class OrdersService extends PrismaClient implements OnModuleInit {
@@ -159,5 +161,43 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
       where: { id },
       data: { status },
     });
+  }
+
+  async createPaymentSession(order: OrderWithProducts) {
+    const paymentSession = await firstValueFrom(
+      this.client.send('create.payment.session', {
+        orderId: order.id,
+        currency: 'usd',
+        items: order.OrderItem.map((orderItem) => {
+          return {
+            name: orderItem.name,
+            price: orderItem.price,
+            quantity: orderItem.quantity,
+          };
+        }),
+      }),
+    );
+    return paymentSession;
+  }
+
+  async markOrderAsPaid(paidOrderDto: PaidOrderDto) {
+    const orderUpdated = await this.order.update({
+      where: { id: paidOrderDto.orderId },
+      data: {
+        stripeChargeId: paidOrderDto.stripePaymentId,
+        status: 'PAID',
+        paid: true,
+        paidAt: new Date(),
+
+        //We leverage the fact that Orders has 1-1 relation with OrderReceipt table, so it allow us to ensure ACID database transactions and avoid using this.$transactions separatelly in this case
+        OrderReceipt: {
+          create: {
+            receiptUrl: paidOrderDto.receiptUrl,
+          },
+        },
+      },
+    });
+
+    return orderUpdated;
   }
 }

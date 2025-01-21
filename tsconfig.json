@@ -16,13 +16,12 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
+    "noFallthroughCasesInSwitch": false
   },
     "watchOptions": {
-    "watchFile": "priorityPollingInterval",
-    "watchDirectory": "dynamicprioritypolling",
-    "fallbackPolling": "dynamicPriority",
-    "synchronousWatchDirectory": true,
+    "watchFile": "dynamicPriorityPolling",
+    "watchDirectory": "dynamicPriorityPolling",
     "excludeDirectories": ["**/node_modules", "dist"]
-    }
+  }
 }
+
